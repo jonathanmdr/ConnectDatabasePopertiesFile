@@ -19,8 +19,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Encryptor {
 
+    //Algoritmo de criptografia MD5 e DES
     private static final String CRYPTO_ALGORITHM = "PBEWithMD5AndDES";
-    private static final String KEY = "QO[kz=rOWaHov<BqG][m]mn0&*.xnbH#lR?DNccYdxoVg0KQR?7Y!Hm%";//Aleatória, pode colocar qualquer coisa.(só consegue descriptografar com essa chave)
+
+    //Aleatória, pode colocar qualquer coisa.(só consegue descriptografar com essa chave)
+    private static final String KEY = "QO[kz=rOWaHov<BqG][m]mn0&*.xnbH#lR?DNccYdxoVg0KQR?7Y!Hm%";
 
     private PBEKeySpec getKs() {
         return new PBEKeySpec(KEY.toCharArray());
@@ -32,17 +35,13 @@ public class Encryptor {
 
     private SecretKey getKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecretKeyFactory skf = SecretKeyFactory.getInstance(CRYPTO_ALGORITHM);
-        KeySpec ks = getKs();
-        SecretKey skey = skf.generateSecret(ks);
-        return skey;
+        return skf.generateSecret(getKs());
     }
 
     public final String encrypt(String text) throws Exception {
         try {
             Cipher c = Cipher.getInstance(CRYPTO_ALGORITHM);
-            SecretKey skey = getKey();
-            PBEParameterSpec ps = getPs();
-            c.init(Cipher.ENCRYPT_MODE, skey, ps);
+            c.init(Cipher.ENCRYPT_MODE, getKey(), getPs());
             return Base64.encode(c.doFinal(text.getBytes()));
         } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
             throw new Exception(ex);
@@ -55,9 +54,7 @@ public class Encryptor {
         }
         try {
             Cipher c = Cipher.getInstance(CRYPTO_ALGORITHM);
-            SecretKey skey = getKey();
-            PBEParameterSpec ps = getPs();
-            c.init(Cipher.DECRYPT_MODE, skey, ps);
+            c.init(Cipher.DECRYPT_MODE, getKey(), getPs());
             return new String(c.doFinal(Base64.decode(text)));
         } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
             throw new Exception(ex);
